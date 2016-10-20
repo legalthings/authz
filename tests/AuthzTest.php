@@ -101,7 +101,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     }
     
     
-    public function testCanWithoutUser()
+    public function testMayWithoutUser()
     {
         $permissions = ['read' => ['user'], 'write' => ['/organizations/889900/users'], 'full' => 'admin'];
         
@@ -112,13 +112,13 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
         
         $auth = new Authz([], null, $permissionMatcher);
         
-        $this->assertFalse($auth->can('read', $permissions));
-        $this->assertFalse($auth->can('write', $permissions));
-        $this->assertFalse($auth->can('full', $permissions));
-        $this->assertFalse($auth->can(['write', 'full'], $permissions));
+        $this->assertFalse($auth->may('read', $permissions));
+        $this->assertFalse($auth->may('write', $permissions));
+        $this->assertFalse($auth->may('full', $permissions));
+        $this->assertFalse($auth->may(['write', 'full'], $permissions));
     }
     
-    public function testCanWithUser()
+    public function testMayWithUser()
     {
         $permissions = ['read' => ['user'], 'write' => ['/organizations/889900/users'], 'full' => 'admin'];
         
@@ -135,13 +135,13 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ]
         ], null, $permissionMatcher);
         
-        $this->assertTrue($auth->can('read', $permissions));
-        $this->assertFalse($auth->can('write', $permissions));
-        $this->assertFalse($auth->can('full', $permissions));
-        $this->assertFalse($auth->can(['write', 'full'], $permissions));
+        $this->assertTrue($auth->may('read', $permissions));
+        $this->assertFalse($auth->may('write', $permissions));
+        $this->assertFalse($auth->may('full', $permissions));
+        $this->assertFalse($auth->may(['write', 'full'], $permissions));
     }
     
-    public function testCanWithOrganizationUser()
+    public function testMayWithOrganizationUser()
     {
         $permissions = ['read' => ['user'], 'write' => ['/organizations/889900/users'], 'full' => 'admin'];
         
@@ -159,13 +159,13 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ]
         ], null, $permissionMatcher);
         
-        $this->assertTrue($auth->can('read', $permissions));
-        $this->assertTrue($auth->can('write', $permissions));
-        $this->assertFalse($auth->can('full', $permissions));
-        $this->assertTrue($auth->can(['write', 'full'], $permissions));
+        $this->assertTrue($auth->may('read', $permissions));
+        $this->assertTrue($auth->may('write', $permissions));
+        $this->assertFalse($auth->may('full', $permissions));
+        $this->assertTrue($auth->may(['write', 'full'], $permissions));
     }
     
-    public function testCanWithAdmin()
+    public function testMayWithAdmin()
     {
         $permissions = ['read' => ['user'], 'write' => ['/organizations/889900/users'], 'full' => 'admin'];
         
@@ -182,13 +182,13 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ]
         ], null, $permissionMatcher);
         
-        $this->assertFalse($auth->can('read', $permissions));
-        $this->assertFalse($auth->can('write', $permissions));
-        $this->assertTrue($auth->can('full', $permissions));
-        $this->assertTrue($auth->can(['write', 'full'], $permissions));
+        $this->assertFalse($auth->may('read', $permissions));
+        $this->assertFalse($auth->may('write', $permissions));
+        $this->assertTrue($auth->may('full', $permissions));
+        $this->assertTrue($auth->may(['write', 'full'], $permissions));
     }
     
-    public function testCanWithParty()
+    public function testMayWithParty()
     {
         $permissions = ['read' => ['user', 'john@example.com'], 'write' => ['/organizations/889900/users']];
         
@@ -203,8 +203,8 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ]
         ], null, $permissionMatcher);
         
-        $this->assertTrue($auth->can('read', $permissions));
-        $this->assertFalse($auth->can('write', $permissions));
+        $this->assertTrue($auth->may('read', $permissions));
+        $this->assertFalse($auth->may('write', $permissions));
     }
     
     
