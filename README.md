@@ -1,2 +1,5 @@
-# auth
-Authorization and access control (PHP)
+# Legalthings Auth
+
+-- 
+
+This library uses the 

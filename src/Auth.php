@@ -18,19 +18,37 @@ class Auth
     protected $session;
     
     /**
+     * Factory method to create a new user
+     * @var string 
+     */
+    protected $userFactory;
+    
+    /**
+     * @var UserInterface
+     */
+    protected $user;
+    
+    /**
      * @var PermissionMatcher
      */
     protected $matcher;
+    
     
     /**
      * Class constructor
      * 
      * @param array             $session
+     * @param callable          $userFactory
      * @param PermissionMatcher $matcher
      */
-    public function __construct(array $session, PermissionMatcher $matcher = null)
+    public function __construct(array $session, $userFactory = null, PermissionMatcher $matcher = null)
     {
+        if (isset($userFactory) && !is_callable($userFactory)) {
+            throw new \InvalidArgumentException("User factory should be callable");
+        }
+        
         $this->session = $session;
+        $this->userFactory = $userFactory ?: [$this, 'createUser'];
         $this->matcher = $matcher ?: new PermissionMatcher();
     }
     
@@ -44,6 +62,35 @@ class Auth
         return $this->session;
     }
 
+    
+    /**
+     * Default user factory method
+     * 
+     * @param string $type  'user' or 'party'
+     * @param array  $data
+     * @return User
+     */
+    protected function createUser($type, $data)
+    {
+        return User::fromData($data);
+    }
+
+    /**
+     * Initialize user
+     */
+    protected function initUser()
+    {
+        $factory = $this->userFactory;
+        
+        if (isset($this->session['user'])) {
+            $this->user = $factory('user', $this->session['user']);
+        } elseif (isset($this->session['party'])) {
+            $this->user = $factory('party', $this->session['party']);
+        } else {
+            $this->user = false;
+        }
+    }
+    
     /**
      * Get the session user
      * 
@@ -51,13 +98,26 @@ class Auth
      */
     public function getUser()
     {
-        if (isset($this->session['user'])) {
-            $data = $this->session['user'];
-        } elseif (isset($this->session['party'])) {
-            $data = $this->session['party'];
+        if (!isset($this->user)) {
+            $this->initUser();
         }
         
-        return isset($data) ? User::fromData($data) : null;
+        return $this->user ?: null;
+    }
+    
+    
+    /**
+     * Check if the user is in a specific group
+     * 
+     * @param string $group
+     * @return boolean
+     */
+    public function is($group)
+    {
+        $user = $this->getUser();
+        $groups = $user ? $user->getGroups() : [];
+        
+        return (boolean)$this->matcher->match([1 => $group], $groups);
     }
     
     /**
