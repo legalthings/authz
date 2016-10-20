@@ -5,6 +5,7 @@ namespace LegalThings;
 use LegalThings\Authz\User;
 use LegalThings\Authz\UserInterface;
 use LegalThings\Authz\SubjectInterface;
+use LegalThings\Authz\Middleware;
 use LegalThings\PermissionMatcher;
 
 /**
@@ -147,5 +148,17 @@ class Authz
         $privileges = $this->matcher->match($permissions, $groups);
         
         return array_intersect((array)$privilege, $privileges) !== [];
+    }
+    
+    /**
+     * Get middleware for the authz object
+     * 
+     * @param int|callable $noUser     Response status or callback for when session is without a user
+     * @param int|callable $forbidden  Response status or callback for when user isn't in specified group
+     * @return Middleware
+     */    
+    public function asMiddleware($noUser = 401, $forbidden = 403)
+    {
+        return new Middleware($this, $noUser, $forbidden);
     }
 }

@@ -12,6 +12,17 @@ use LegalThings\PermissionMatcher;
  */
 class AuthzTest extends \PHPUnit\Framework\TestCase
 {
+    protected function assertPrivatePropertySame($expected, $property, $object)
+    {
+        $this->assertInternalType('object', $object);
+        
+        $refl = new \ReflectionProperty($property[0], $property[1]);
+        
+        $refl->setAccessible(true);
+        $this->assertSame($expected, $refl->getValue($object));
+    }
+    
+    
     public function testGetSession()
     {
         $authz = new Authz(['id' => 'eksdfiue']);
@@ -326,6 +337,17 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     public function testInvalidUserFactory()
     {
         new Authz([], 'foo bar zoo');
+    }
+    
+    
+    public function testAsMiddleware()
+    {
+        $authz = new Authz([]);
+        $middleware = $authz->asMiddleware(400, 402);
+        
+        $this->assertPrivatePropertySame($authz, [Authz\Middleware::class, 'authz'], $middleware);
+        $this->assertPrivatePropertySame(400, [Authz\Middleware::class, 'responseNoUser'], $middleware);
+        $this->assertPrivatePropertySame(402, [Authz\Middleware::class, 'responseForbidden'], $middleware);
     }
     
     
