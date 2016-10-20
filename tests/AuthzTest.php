@@ -4,6 +4,7 @@ namespace LegalThings;
 
 use LegalThings\Authz\User;
 use LegalThings\Authz\UserInterface;
+use LegalThings\Authz\SubjectInterface;
 use LegalThings\PermissionMatcher;
 
 /**
@@ -103,7 +104,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     
     public function testMayWithoutUser()
     {
-        $permissions = ['read' => ['user'], 'write' => ['/organizations/889900/users'], 'full' => 'admin'];
+        $permissions = ['user' => ['read'], '/organizations/889900/users' => ['write'], 'admin' => ['full']];
         
         $permissionMatcher = $this->createMock(PermissionMatcher::class);
         $permissionMatcher->expects($this->exactly(4))->method('match')
@@ -120,7 +121,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     
     public function testMayWithUser()
     {
-        $permissions = ['read' => ['user'], 'write' => ['/organizations/889900/users'], 'full' => 'admin'];
+        $permissions = ['user' => ['read'], '/organizations/889900/users' => ['write'], 'admin' => ['full']];
         
         $permissionMatcher = $this->createMock(PermissionMatcher::class);
         $permissionMatcher->expects($this->exactly(4))->method('match')
@@ -143,7 +144,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     
     public function testMayWithOrganizationUser()
     {
-        $permissions = ['read' => ['user'], 'write' => ['/organizations/889900/users'], 'full' => 'admin'];
+        $permissions = ['user' => ['read'], '/organizations/889900/users' => ['write'], 'admin' => ['full']];
         
         $permissionMatcher = $this->createMock(PermissionMatcher::class);
         $permissionMatcher->expects($this->exactly(4))->method('match')
@@ -167,7 +168,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     
     public function testMayWithAdmin()
     {
-        $permissions = ['read' => ['user'], 'write' => ['/organizations/889900/users'], 'full' => 'admin'];
+        $permissions = ['user' => ['read'], '/organizations/889900/users' => ['write'], 'admin' => ['full']];
         
         $permissionMatcher = $this->createMock(PermissionMatcher::class);
         $permissionMatcher->expects($this->exactly(4))->method('match')
@@ -190,7 +191,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     
     public function testMayWithParty()
     {
-        $permissions = ['read' => ['user', 'john@example.com'], 'write' => ['/organizations/889900/users']];
+        $permissions = ['user' => ['read'], 'john@example.com' => ['read'], '/organizations/889900/users' => ['write']];
         
         $permissionMatcher = $this->createMock(PermissionMatcher::class);
         $permissionMatcher->expects($this->exactly(2))->method('match')
@@ -207,13 +208,47 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($auth->may('write', $permissions));
     }
     
+    public function testMayWithSubject()
+    {
+        $permissions = ['user' => ['read'], '/organizations/889900/users' => ['write'], 'admin' => ['full']];
+        
+        $subject = $this->createMock(SubjectInterface::class);
+        $subject->expects($this->once())->method('getPermissions')
+            ->willReturn($permissions);
+        
+        $permissionMatcher = $this->createMock(PermissionMatcher::class);
+        $permissionMatcher->expects($this->once())->method('match')
+            ->with($permissions, [])
+            ->willReturn([]);
+        
+        $auth = new Authz([], null, $permissionMatcher);
+        
+        $this->assertFalse($auth->may('read', $subject));
+    }    
+    
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testMayWithInvalidSubject()
+    {
+        $subject = $this->getMockBuilder(\stdClass::class)->setMethods(['getPermissions'])->getMock();
+        $subject->expects($this->never())->method('getPermissions');
+        
+        $permissionMatcher = $this->createMock(PermissionMatcher::class);
+        $permissionMatcher->expects($this->never())->method('match');
+        
+        $auth = new Authz([], null, $permissionMatcher);
+        
+        $auth->may('read', $subject);
+    }    
+    
     
     public function testUserFactoryWithoutUser()
     {
         $userMock = $this->createMock(UserInterface::class);
         $userData = ['id' => '12345', 'email' => 'john@example.com'];
         
-        $factory = $this->createMock(\stdClass::class);
+        $factory = $this->getMockBuilder(\stdClass::class)->setMethods(['__invoke'])->getMock();
         $factory->expects($this->once())->method('__invoke')
             ->with('user', $userData)
             ->willReturn($userMock);
@@ -231,7 +266,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
         $userMock = $this->createMock(UserInterface::class);
         $userData = ['id' => '12345', 'email' => 'john@example.com'];
         
-        $factory = $this->createMock(\stdClass::class);
+        $factory = $this->getMockBuilder(\stdClass::class)->setMethods(['__invoke'])->getMock();
         $factory->expects($this->once())->method('__invoke')
             ->with('user', $userData)
             ->willReturn($userMock);
@@ -249,7 +284,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
         $userMock = $this->createMock(UserInterface::class);
         $userData = ['email' => 'john@example.com'];
         
-        $factory = $this->createMock(\stdClass::class);
+        $factory = $this->getMockBuilder(\stdClass::class)->setMethods(['__invoke'])->getMock();
         $factory->expects($this->once())->method('__invoke')
             ->with('party', $userData)
             ->willReturn($userMock);

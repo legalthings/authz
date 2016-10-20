@@ -130,7 +130,7 @@ class Authz
     public function may($privilege, $permissions)
     {
         if (!is_array($permissions) && !$permissions instanceof SubjectInterface) {
-            throw new \InvalidArgumentException("permissions should be an array or SubjectInterface");
+            throw new \InvalidArgumentException("Permissions should be an array or SubjectInterface");
         }
         
         $user = $this->getUser();
