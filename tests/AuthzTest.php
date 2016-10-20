@@ -86,11 +86,15 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     {
         $permissionMatcher = $this->createMock(PermissionMatcher::class);
         $permissionMatcher->expects($this->exactly(2))->method('match')
-            ->withConsecutive([['user' => 1], ['user']], [['admin' => 1], ['user']])
+            ->withConsecutive(
+                [['user' => 1], ['user', 'john@example.com']],
+                [['admin' => 1], ['user', 'john@example.com']]
+            )
             ->willReturnOnConsecutiveCalls([1], []);
         
         $authz = new Authz([
             'user' => [
+                'email' => 'john@example.com',
                 'authz_groups' => [
                     'user'
                 ]
@@ -99,6 +103,25 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
         
         $this->assertTrue($authz->is('user'));
         $this->assertFalse($authz->is('admin'));
+    }
+    
+    public function testIsWithParty()
+    {
+        $permissionMatcher = $this->createMock(PermissionMatcher::class);
+        $permissionMatcher->expects($this->once())->method('match')
+            ->with(['user' => 1], ['john@example.com'])
+            ->willReturn([]);
+        
+        $authz = new Authz([
+            'party' => [
+                'email' => 'john@example.com',
+                'authz_groups' => [
+                    'user' // ignored
+                ]
+            ]
+        ], null, $permissionMatcher);
+        
+        $this->assertFalse($authz->is('user'));
     }
     
     

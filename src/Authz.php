@@ -72,6 +72,10 @@ class Authz
      */
     protected function createUser($type, $data)
     {
+        if ($type === 'party') {
+            unset($data['id'], $data['authz_groups']);
+        }
+        
         return User::fromData($data);
     }
 
