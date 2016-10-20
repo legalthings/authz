@@ -14,8 +14,8 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetSession()
     {
-        $auth = new Authz(['id' => 'eksdfiue']);
-        $session = $auth->getSession();
+        $authz = new Authz(['id' => 'eksdfiue']);
+        $session = $authz->getSession();
         
         $this->assertInternalType('array', $session);
         $this->assertArrayHasKey('id', $session);
@@ -25,13 +25,13 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     
     public function testGetUserWithNoSession()
     {
-        $auth = new Authz([]);
-        $this->assertNull($auth->getUser());
+        $authz = new Authz([]);
+        $this->assertNull($authz->getUser());
     }
     
     public function testGetUserWithUser()
     {
-        $auth = new Authz([
+        $authz = new Authz([
             'user' => [
                 'id' => '12345',
                 'email' => 'john@example.com',
@@ -43,7 +43,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ]
         ]);
         
-        $user = $auth->getUser();
+        $user = $authz->getUser();
         
         $this->assertInstanceOf(User::class, $user);
         $this->assertAttributeEquals('12345', 'id', $user);
@@ -57,13 +57,13 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     
     public function testGetUserWithParty()
     {
-        $auth = new Authz([
+        $authz = new Authz([
             'party' => [
                 'email' => 'john@example.com'
             ]
         ]);
         
-        $user = $auth->getUser();
+        $user = $authz->getUser();
         
         $this->assertInstanceOf(User::class, $user);
         $this->assertAttributeEquals('john@example.com', 'email', $user);
@@ -77,9 +77,9 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ->with(['user' =>  1], [])
             ->willReturn([]);
         
-        $auth = new Authz([], null, $permissionMatcher);
+        $authz = new Authz([], null, $permissionMatcher);
         
-        $this->assertFalse($auth->is('user'));
+        $this->assertFalse($authz->is('user'));
     }
     
     public function testIsWithUser()
@@ -89,7 +89,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ->withConsecutive([['user' => 1], ['user']], [['admin' => 1], ['user']])
             ->willReturnOnConsecutiveCalls([1], []);
         
-        $auth = new Authz([
+        $authz = new Authz([
             'user' => [
                 'authz_groups' => [
                     'user'
@@ -97,8 +97,8 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ]
         ], null, $permissionMatcher);
         
-        $this->assertTrue($auth->is('user'));
-        $this->assertFalse($auth->is('admin'));
+        $this->assertTrue($authz->is('user'));
+        $this->assertFalse($authz->is('admin'));
     }
     
     
@@ -111,12 +111,12 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ->with($permissions, [])
             ->willReturn([]);
         
-        $auth = new Authz([], null, $permissionMatcher);
+        $authz = new Authz([], null, $permissionMatcher);
         
-        $this->assertFalse($auth->may('read', $permissions));
-        $this->assertFalse($auth->may('write', $permissions));
-        $this->assertFalse($auth->may('full', $permissions));
-        $this->assertFalse($auth->may(['write', 'full'], $permissions));
+        $this->assertFalse($authz->may('read', $permissions));
+        $this->assertFalse($authz->may('write', $permissions));
+        $this->assertFalse($authz->may('full', $permissions));
+        $this->assertFalse($authz->may(['write', 'full'], $permissions));
     }
     
     public function testMayWithUser()
@@ -128,7 +128,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ->with($permissions, ['user'])
             ->willReturn(['read']);
         
-        $auth = new Authz([
+        $authz = new Authz([
             'user' => [
                 'authz_groups' => [
                     'user'
@@ -136,10 +136,10 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ]
         ], null, $permissionMatcher);
         
-        $this->assertTrue($auth->may('read', $permissions));
-        $this->assertFalse($auth->may('write', $permissions));
-        $this->assertFalse($auth->may('full', $permissions));
-        $this->assertFalse($auth->may(['write', 'full'], $permissions));
+        $this->assertTrue($authz->may('read', $permissions));
+        $this->assertFalse($authz->may('write', $permissions));
+        $this->assertFalse($authz->may('full', $permissions));
+        $this->assertFalse($authz->may(['write', 'full'], $permissions));
     }
     
     public function testMayWithOrganizationUser()
@@ -151,7 +151,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ->with($permissions, ['user', '/organizations/889900/users'])
             ->willReturn(['read', 'write']);
         
-        $auth = new Authz([
+        $authz = new Authz([
             'user' => [
                 'authz_groups' => [
                     'user',
@@ -160,10 +160,10 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ]
         ], null, $permissionMatcher);
         
-        $this->assertTrue($auth->may('read', $permissions));
-        $this->assertTrue($auth->may('write', $permissions));
-        $this->assertFalse($auth->may('full', $permissions));
-        $this->assertTrue($auth->may(['write', 'full'], $permissions));
+        $this->assertTrue($authz->may('read', $permissions));
+        $this->assertTrue($authz->may('write', $permissions));
+        $this->assertFalse($authz->may('full', $permissions));
+        $this->assertTrue($authz->may(['write', 'full'], $permissions));
     }
     
     public function testMayWithAdmin()
@@ -175,7 +175,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ->with($permissions, ['admin'])
             ->willReturn(['full']);
         
-        $auth = new Authz([
+        $authz = new Authz([
             'user' => [
                 'authz_groups' => [
                     'admin'
@@ -183,10 +183,10 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ]
         ], null, $permissionMatcher);
         
-        $this->assertFalse($auth->may('read', $permissions));
-        $this->assertFalse($auth->may('write', $permissions));
-        $this->assertTrue($auth->may('full', $permissions));
-        $this->assertTrue($auth->may(['write', 'full'], $permissions));
+        $this->assertFalse($authz->may('read', $permissions));
+        $this->assertFalse($authz->may('write', $permissions));
+        $this->assertTrue($authz->may('full', $permissions));
+        $this->assertTrue($authz->may(['write', 'full'], $permissions));
     }
     
     public function testMayWithParty()
@@ -198,14 +198,14 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ->with($permissions, ['john@example.com'])
             ->willReturn(['read']);
         
-        $auth = new Authz([
+        $authz = new Authz([
             'party' => [
                 'email' => 'john@example.com'
             ]
         ], null, $permissionMatcher);
         
-        $this->assertTrue($auth->may('read', $permissions));
-        $this->assertFalse($auth->may('write', $permissions));
+        $this->assertTrue($authz->may('read', $permissions));
+        $this->assertFalse($authz->may('write', $permissions));
     }
     
     public function testMayWithSubject()
@@ -221,9 +221,9 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ->with($permissions, [])
             ->willReturn([]);
         
-        $auth = new Authz([], null, $permissionMatcher);
+        $authz = new Authz([], null, $permissionMatcher);
         
-        $this->assertFalse($auth->may('read', $subject));
+        $this->assertFalse($authz->may('read', $subject));
     }    
     
     /**
@@ -237,9 +237,9 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
         $permissionMatcher = $this->createMock(PermissionMatcher::class);
         $permissionMatcher->expects($this->never())->method('match');
         
-        $auth = new Authz([], null, $permissionMatcher);
+        $authz = new Authz([], null, $permissionMatcher);
         
-        $auth->may('read', $subject);
+        $authz->may('read', $subject);
     }    
     
     
@@ -253,12 +253,12 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ->with('user', $userData)
             ->willReturn($userMock);
         
-        $auth = new Authz(['user' => $userData], $factory);
+        $authz = new Authz(['user' => $userData], $factory);
         
-        $this->assertSame($userMock, $auth->getUser());
+        $this->assertSame($userMock, $authz->getUser());
         
         // Shouldn't call fatory
-        $this->assertSame($userMock, $auth->getUser());
+        $this->assertSame($userMock, $authz->getUser());
     }
     
     public function testUserFactoryWithUser()
@@ -271,12 +271,12 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ->with('user', $userData)
             ->willReturn($userMock);
         
-        $auth = new Authz(['user' => $userData], $factory);
+        $authz = new Authz(['user' => $userData], $factory);
         
-        $this->assertSame($userMock, $auth->getUser());
+        $this->assertSame($userMock, $authz->getUser());
         
         // Shouldn't call fatory
-        $this->assertSame($userMock, $auth->getUser());
+        $this->assertSame($userMock, $authz->getUser());
     }
     
     public function testUserFactoryWithParty()
@@ -289,12 +289,12 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ->with('party', $userData)
             ->willReturn($userMock);
         
-        $auth = new Authz(['party' => $userData], $factory);
+        $authz = new Authz(['party' => $userData], $factory);
         
-        $this->assertSame($userMock, $auth->getUser());
+        $this->assertSame($userMock, $authz->getUser());
         
         // Shouldn't call factory
-        $this->assertSame($userMock, $auth->getUser());
+        $this->assertSame($userMock, $authz->getUser());
     }
     
     /**
@@ -311,7 +311,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsWithRealPermissionMatcher()
     {
-        $auth = new Authz([
+        $authz = new Authz([
             'user' => [
                 'authz_groups' => [
                     'user'
@@ -319,8 +319,8 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ]
         ]);
         
-        $this->assertTrue($auth->is('user'));
-        $this->assertFalse($auth->is('admin'));
+        $this->assertTrue($authz->is('user'));
+        $this->assertFalse($authz->is('admin'));
     }
     
     /**
@@ -330,7 +330,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     {
         $permissions = ['user' => ['read'], '/organizations/889900/users' => ['write']];
         
-        $auth = new Authz([
+        $authz = new Authz([
             'user' => [
                 'authz_groups' => [
                     'user'
@@ -338,7 +338,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
             ]
         ]);
         
-        $this->assertTrue($auth->may('read', $permissions));
-        $this->assertFalse($auth->may('write', $permissions));
+        $this->assertTrue($authz->may('read', $permissions));
+        $this->assertFalse($authz->may('write', $permissions));
     }
 }
