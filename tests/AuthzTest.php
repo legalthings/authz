@@ -304,4 +304,41 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     {
         new Authz([], 'foo bar zoo');
     }
+    
+    
+    /**
+     * @group functional
+     */
+    public function testIsWithRealPermissionMatcher()
+    {
+        $auth = new Authz([
+            'user' => [
+                'authz_groups' => [
+                    'user'
+                ]
+            ]
+        ]);
+        
+        $this->assertTrue($auth->is('user'));
+        $this->assertFalse($auth->is('admin'));
+    }
+    
+    /**
+     * @group functional
+     */
+    public function testMayWithRealPermissionMatcher()
+    {
+        $permissions = ['user' => ['read'], '/organizations/889900/users' => ['write']];
+        
+        $auth = new Authz([
+            'user' => [
+                'authz_groups' => [
+                    'user'
+                ]
+            ]
+        ]);
+        
+        $this->assertTrue($auth->may('read', $permissions));
+        $this->assertFalse($auth->may('write', $permissions));
+    }
 }
