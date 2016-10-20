@@ -1,5 +1,5 @@
 {
-    "name": "legalthings/auth",
+    "name": "legalthings/authz",
     "description": "Authorization and access control",
     "authors": [
         {

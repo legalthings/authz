@@ -1,6 +1,6 @@
 <?php
 
-namespace LegalThings\Auth;
+namespace LegalThings\Authz;
 
 /**
  * Interface for objects that are subjected to access control

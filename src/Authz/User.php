@@ -1,8 +1,8 @@
 <?php
 
-namespace LegalThings\Auth;
+namespace LegalThings\Authz;
 
-use LegalThings\Auth\UserInterface;
+use LegalThings\Authz\UserInterface;
 
 /**
  * Basic implementation of a user

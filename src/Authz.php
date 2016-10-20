@@ -2,15 +2,15 @@
 
 namespace LegalThings;
 
-use LegalThings\Auth\User;
-use LegalThings\Auth\UserInterface;
-use LegalThings\Auth\SubjectInterface;
+use LegalThings\Authz\User;
+use LegalThings\Authz\UserInterface;
+use LegalThings\Authz\SubjectInterface;
 use LegalThings\PermissionMatcher;
 
 /**
  * Authorization and access control
  */
-class Auth
+class Authz
 {
     /**
      * @var array

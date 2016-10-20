@@ -1,11 +1,11 @@
 <?php
 
-namespace LegalThings\Auth;
+namespace LegalThings\Authz;
 
-use LegalThings\Auth\User;
+use LegalThings\Authz\User;
 
 /**
- * @covers LegalThings\Auth\User
+ * @covers LegalThings\Authz\User
  */
 class UserTest extends \PHPUnit\Framework\TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace LegalThings\Auth;
+namespace LegalThings\Authz;
 
 /**
  * User interface

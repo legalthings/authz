@@ -2,18 +2,18 @@
 
 namespace LegalThings;
 
-use LegalThings\Auth\User;
-use LegalThings\Auth\UserInterface;
+use LegalThings\Authz\User;
+use LegalThings\Authz\UserInterface;
 use LegalThings\PermissionMatcher;
 
 /**
- * @covers LegalThings\Auth
+ * @covers LegalThings\Authz
  */
-class AuthTest extends \PHPUnit\Framework\TestCase
+class AuthzTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetSession()
     {
-        $auth = new Auth(['id' => 'eksdfiue']);
+        $auth = new Authz(['id' => 'eksdfiue']);
         $session = $auth->getSession();
         
         $this->assertInternalType('array', $session);
@@ -24,13 +24,13 @@ class AuthTest extends \PHPUnit\Framework\TestCase
     
     public function testGetUserWithNoSession()
     {
-        $auth = new Auth([]);
+        $auth = new Authz([]);
         $this->assertNull($auth->getUser());
     }
     
     public function testGetUserWithUser()
     {
-        $auth = new Auth([
+        $auth = new Authz([
             'user' => [
                 'id' => '12345',
                 'email' => 'john@example.com',
@@ -56,7 +56,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
     
     public function testGetUserWithParty()
     {
-        $auth = new Auth([
+        $auth = new Authz([
             'party' => [
                 'email' => 'john@example.com'
             ]
@@ -76,7 +76,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             ->with([1 => 'user'], [])
             ->willReturn([]);
         
-        $auth = new Auth([], null, $permissionMatcher);
+        $auth = new Authz([], null, $permissionMatcher);
         
         $this->assertFalse($auth->is('user'));
     }
@@ -88,7 +88,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             ->withConsecutive([[1 => 'user'], ['user']], [[1 => 'admin'], ['user']])
             ->willReturnOnConsecutiveCalls(1, null);
         
-        $auth = new Auth([
+        $auth = new Authz([
             'user' => [
                 'authz_groups' => [
                     'user'
@@ -110,7 +110,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             ->with($permissions, [])
             ->willReturn([]);
         
-        $auth = new Auth([], null, $permissionMatcher);
+        $auth = new Authz([], null, $permissionMatcher);
         
         $this->assertFalse($auth->can('read', $permissions));
         $this->assertFalse($auth->can('write', $permissions));
@@ -127,7 +127,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             ->with($permissions, ['user'])
             ->willReturn(['read']);
         
-        $auth = new Auth([
+        $auth = new Authz([
             'user' => [
                 'authz_groups' => [
                     'user'
@@ -150,7 +150,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             ->with($permissions, ['user', '/organizations/889900/users'])
             ->willReturn(['read', 'write']);
         
-        $auth = new Auth([
+        $auth = new Authz([
             'user' => [
                 'authz_groups' => [
                     'user',
@@ -174,7 +174,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             ->with($permissions, ['admin'])
             ->willReturn(['full']);
         
-        $auth = new Auth([
+        $auth = new Authz([
             'user' => [
                 'authz_groups' => [
                     'admin'
@@ -197,7 +197,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             ->with($permissions, ['john@example.com'])
             ->willReturn(['read']);
         
-        $auth = new Auth([
+        $auth = new Authz([
             'party' => [
                 'email' => 'john@example.com'
             ]
@@ -218,7 +218,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             ->with('user', $userData)
             ->willReturn($userMock);
         
-        $auth = new Auth(['user' => $userData], $factory);
+        $auth = new Authz(['user' => $userData], $factory);
         
         $this->assertSame($userMock, $auth->getUser());
         
@@ -236,7 +236,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             ->with('user', $userData)
             ->willReturn($userMock);
         
-        $auth = new Auth(['user' => $userData], $factory);
+        $auth = new Authz(['user' => $userData], $factory);
         
         $this->assertSame($userMock, $auth->getUser());
         
@@ -254,7 +254,7 @@ class AuthTest extends \PHPUnit\Framework\TestCase
             ->with('party', $userData)
             ->willReturn($userMock);
         
-        $auth = new Auth(['party' => $userData], $factory);
+        $auth = new Authz(['party' => $userData], $factory);
         
         $this->assertSame($userMock, $auth->getUser());
         
@@ -267,6 +267,6 @@ class AuthTest extends \PHPUnit\Framework\TestCase
      */
     public function testInvalidUserFactory()
     {
-        new Auth([], 'foo bar zoo');
+        new Authz([], 'foo bar zoo');
     }
 }
