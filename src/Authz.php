@@ -117,7 +117,7 @@ class Authz
         $user = $this->getUser();
         $groups = $user ? $user->getGroups() : [];
         
-        return (boolean)$this->matcher->match([1 => $group], $groups);
+        return (boolean)$this->matcher->match([$group => 1], $groups);
     }
     
     /**

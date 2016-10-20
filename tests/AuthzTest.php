@@ -74,7 +74,7 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     {
         $permissionMatcher = $this->createMock(PermissionMatcher::class);
         $permissionMatcher->expects($this->once())->method('match')
-            ->with([1 => 'user'], [])
+            ->with(['user' =>  1], [])
             ->willReturn([]);
         
         $auth = new Authz([], null, $permissionMatcher);
@@ -86,8 +86,8 @@ class AuthzTest extends \PHPUnit\Framework\TestCase
     {
         $permissionMatcher = $this->createMock(PermissionMatcher::class);
         $permissionMatcher->expects($this->exactly(2))->method('match')
-            ->withConsecutive([[1 => 'user'], ['user']], [[1 => 'admin'], ['user']])
-            ->willReturnOnConsecutiveCalls(1, null);
+            ->withConsecutive([['user' => 1], ['user']], [['admin' => 1], ['user']])
+            ->willReturnOnConsecutiveCalls([1], []);
         
         $auth = new Authz([
             'user' => [
