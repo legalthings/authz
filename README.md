@@ -1,16 +1,17 @@
 # Legalthings Authz
 
+[![Build Status](https://travis-ci.org/legalthings/authz.svg?branch=master)](https://travis-ci.org/legalthings/authz)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/legalthings/authz/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/legalthings/authz/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/legalthings/authz/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/legalthings/authz/?branch=master)
+
 Authorization and access control through [permission matching](https://github.com/legalthings/permission-matcher).
 
 
 ## Installation
 
 ```
-composer require legalthings/mongodb-session-handler
+composer require legalthings/authz
 ```
-
-**This libary uses the legacy Mongo driver.** If you're running PHP7 or simply are already using the new MongoDB
-driver, please install [`alcaeus/mongo-php-adapter`](https://packagist.org/packages/alcaeus/mongo-php-adapter).
 
 
 ## Usage
