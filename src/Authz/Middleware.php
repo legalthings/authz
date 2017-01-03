@@ -118,10 +118,11 @@ class Middleware
         
         $group = $this->getGroup($request);
         
-        if ($group && !$this->authz->is($group)) {
+        if (!isset($group) && !$this->authz->is($group)) {
             return $this->accessDenied($request, $response);
         }
         
         return $next($request, $response);
     }
 }
+
